@@ -2,10 +2,10 @@ from typing import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
-
+import credentials
 
 # Database connection URL
-URL_DATABASE = 'postgresql://postgres:2025@localhost:5432/E_COMMERCE'
+URL_DATABASE = credentials.DATABASE_CREDENTIALS
 
 
 # Create SQLAlchemy engine
