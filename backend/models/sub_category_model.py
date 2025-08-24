@@ -12,3 +12,4 @@ class SubCategory(Base):
     category_id = Column(Integer, ForeignKey("categories.id", ondelete="CASCADE"), nullable=False)
 
     category = relationship("Category", back_populates="subcategories")
+    products = relationship("Product", back_populates="subcategory")

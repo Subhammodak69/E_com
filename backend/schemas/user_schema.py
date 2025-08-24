@@ -24,7 +24,16 @@ class UserBase(BaseModel):
     is_active: bool = True
 
 class UserCreate(UserBase):
-    pass
+    first_name: str
+    middle_name: Optional[str] = None
+    last_name: str
+    profile_photo_url: Optional[str] = None
+    gender: GenderEnum = GenderEnum.OTHERS
+    role: RoleEnum = RoleEnum.ENDUSER
+    email: EmailStr
+    phone: Optional[str] = None
+    is_active: bool = True
+    
 
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None

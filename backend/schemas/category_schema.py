@@ -1,5 +1,5 @@
 from __future__ import annotations
-from pydantic import BaseModel,HttpUrl
+from pydantic import BaseModel
 from typing import List, Optional
 from schemas.sub_category_schema import SubCategoryRead  
 
@@ -10,7 +10,9 @@ class CategoryBase(BaseModel):
     image: Optional[str] = None
 
 class CategoryCreate(CategoryBase):
-    pass
+    name: str
+    description: Optional[str] = None
+    image: Optional[str] = None
 
 class CategoryUpdate(BaseModel):
     name: Optional[str] = None
