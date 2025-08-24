@@ -1,6 +1,7 @@
 from sqlalchemy import Boolean, Column, Date, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from database import Base
+from models.product_item_model import ProductItem
 from models.sub_category_model import SubCategory
 
 
@@ -17,3 +18,4 @@ class Product(Base):
     updated_at = Column(Date, nullable=False)
 
     subcategory = relationship("SubCategory", back_populates="products")
+    productitems = relationship("ProductItem", back_populates="product")
