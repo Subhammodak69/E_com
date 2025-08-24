@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
-const navLinkStyles = ({ isActive }) => ({
-  color: isActive ? '#61dafb' : 'white',
-  textDecoration: 'none',
-  fontWeight: isActive ? 'bold' : 'normal',
-  margin: '0 10px',
-  padding: '5px 10px',
-  borderRadius: '4px',
-  backgroundColor: isActive ? 'rgba(97, 218, 251, 0.2)' : 'transparent',
-});
+
+
 
 const Navbar = () => {
+
+
   const [searchTerm, setSearchTerm] = useState('');
 
-  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    // Add search handler logic here, e.g., navigate or filter
-    alert(`Searching for: ${searchTerm}`);
+    // Implement search functionality or redirect
+    alert(`Search for: ${searchTerm}`);
   };
 
   return (
@@ -34,23 +31,43 @@ const Navbar = () => {
       top: 0,
       zIndex: 1000,
     }}>
-      {/* Logo */}
+      {/* App Logo */}
       <div>
-        <NavLink to="/" style={{ color: 'white', fontSize: '24px', fontWeight: 'bold', textDecoration: 'none' }}>
-          Shopy
-        </NavLink>
+        <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Shopy</Link>
+
       </div>
 
       {/* Navigation Links */}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <NavLink to="/" style={navLinkStyles} end>Home</NavLink>
-        <NavLink to="/cart" style={navLinkStyles}>Cart</NavLink>
-        <NavLink to="/order" style={navLinkStyles}>Order</NavLink>
-        <NavLink to="/wishlist" style={navLinkStyles}>Wishlist</NavLink>
-      </div>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', gap: '2rem' }}>
+      <li>
+        <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>
+          <i className="bi bi-house me-1"></i>
+          Home
+        </Link>
+      </li>
+      <li>
+        <Link to="/cart" style={{ color: 'white', textDecoration: 'none' }}>
+          <i className="bi bi-cart me-1"></i>
+          Cart
+        </Link>
+      </li>
+      <li>
+        <Link to="/order" style={{ color: 'white', textDecoration: 'none' }}>
+          <i className="bi bi-box-seam me-1"></i>
+          Order
+        </Link>
+      </li>
+      <li>
+        <Link to="/wishlist" style={{ color: 'white', textDecoration: 'none' }}>
+          <i className="bi bi-heart me-1"></i>
+          Wishlist
+        </Link>
+      </li>
+    </ul>
+
 
       {/* Search Bar */}
-      <form onSubmit={handleSearchSubmit} style={{ display: 'flex' }}>
+      <form onSubmit={handleSearchSubmit}>
         <input
           type="text"
           placeholder="Search products..."
@@ -77,8 +94,8 @@ const Navbar = () => {
         </button>
       </form>
 
-      {/* Profile/Login Buttons */}
-      <div style={{ marginLeft: '20px' }}>
+      {/* Profile / Auth Buttons */}
+      <div>
         <button style={{
           marginRight: '10px',
           backgroundColor: 'transparent',
@@ -88,7 +105,8 @@ const Navbar = () => {
           padding: '5px 10px',
           cursor: 'pointer',
         }}>
-          Log In
+          <Link to="/login/" style={{ color: 'white', textDecoration: 'none' }}>Login</Link>
+
         </button>
         <button style={{
           backgroundColor: '#61dafb',
