@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from database import get_db
 from schemas.category_schema import (
-    CategoryCreate, CategoryRead, CategoryUpdate, CategoryWithSubcategories
+    CategoryCreate, CategoryRead, CategoryUpdate, CategoryWithSubcategories,CategoryBase
 )
 from services import category_service
 
@@ -28,8 +28,12 @@ def read_categories(skip: int = 0, limit: int = 100, db: Session = Depends(get_d
 
 
 @router.put("/{category_id}", response_model=CategoryRead)
-def update_category(category_id: int, category: CategoryUpdate, db: Session = Depends(get_db)):
-    db_category = category_service.update_category(db, category_id, category)
+def update_category(
+    category_id: int,
+    category: CategoryBase,
+    db: Session = Depends(get_db),
+):
+    db_category = category_service.update_category_full(db, category_id, category)
     if not db_category:
         raise HTTPException(status_code=404, detail="Category not found")
     return db_category

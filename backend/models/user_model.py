@@ -1,9 +1,8 @@
 # models.py
 from sqlalchemy import Column, String, Boolean, Integer
-from sqlalchemy.ext.declarative import declarative_base
 from enum import IntEnum
+from database import Base
 
-Base = declarative_base()
 
 class GenderEnum(IntEnum):
     MALE = 1
