@@ -2,9 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from database import get_db 
-from schemas import UserCreate, UserRead, UserUpdate,OTPVerify,UserCreateWithOTP
+from schemas import UserCreate, UserRead, UserUpdate,OTPVerify,UserCreateWithOTP_NoOTPFlag
 from services.user_service import *
 from utils.cache import get_otp
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -20,33 +23,37 @@ def verify_otp(data: OTPVerify, db: Session = Depends(get_db)):
     cached_otp = get_otp(data.temp_id)
     if not cached_otp or cached_otp != data.otp:
         raise HTTPException(status_code=400, detail="Invalid or expired OTP")
-    # For login, you might verify user exists, generate token, etc.
-    # For signup, OTP is verified here.
-    delete_otp(data.temp_id)
+    
+    if data.purpose == "signup":
+        # Don't delete OTP here for signup - keep it for final user creation
+        return {"message": "OTP verified!"}
+    
     return {"message": "OTP verified!"}
 
+
+
 @router.post("/")
-def create_user(user_with_otp: UserCreateWithOTP, db: Session = Depends(get_db)):
-    cached_otp = get_otp(user_with_otp.temp_id)
-    if not cached_otp or cached_otp != user_with_otp.otp_input:
-        raise HTTPException(status_code=400, detail="Invalid or expired OTP")
+def create_user_endpoint(user_data: UserCreateWithOTP_NoOTPFlag, db: Session = Depends(get_db)):
+    # user_data now includes all user fields + otp_verified flag
+    if not user_data.otp_verified:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="OTP not verified")
 
-    user_data = user_with_otp.dict()
-    # Remove temp_id and otp_input keys before creating User model
-    user_data.pop('temp_id')
-    user_data.pop('otp_input')
-    new_user = User(**user_data, is_active=True)
-
-    db.add(new_user)
     try:
-        db.commit()
-        db.refresh(new_user)
-    except Exception:
-        db.rollback()
-        raise HTTPException(status_code=400, detail="Could not create user")
+        user_data_dict = user_data.dict(exclude={"otp_verified"})
+        user = create_user(db, UserCreate(**user_data_dict))
 
-    delete_otp(user_with_otp.temp_id)
-    return new_user
+        if user is None:
+            raise HTTPException(status_code=400, detail="User creation failed")
+
+        return user
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="User with provided email or phone already exists")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
 
 
 @router.get("/{user_id}", response_model=UserRead)

@@ -3,27 +3,25 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 import credentials
+import time
 
-# Database connection URL
+# Database URL
 URL_DATABASE = credentials.DATABASE_CREDENTIALS
 
-
-# Create SQLAlchemy engine
+# Engine and session setup
 engine = create_engine(URL_DATABASE)
-
-
-# Create a configured "SessionLocal" class
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-# Base class for models
 Base = declarative_base()
 
-
-# Dependency function for FastAPI to get a session
+# Dependency function with debug logs and timing
 def get_db() -> Generator[Session, None, None]:
+    print("Opening new DB session...")
+    start = time.perf_counter()
     db = SessionLocal()
+    duration = time.perf_counter() - start
+    print(f"DB session opened in {duration:.4f} seconds")
     try:
         yield db
     finally:
         db.close()
+        print("DB session closed.")

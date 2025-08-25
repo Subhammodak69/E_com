@@ -32,9 +32,8 @@ class UserCreate(BaseModel):
     gender: str
 
 
-class UserCreateWithOTP(UserCreate):
-    temp_id: str
-    otp_input: str
+class UserCreateWithOTP_NoOTPFlag(UserCreate):
+    otp_verified: bool
 
 class OTPVerify(BaseModel):
     temp_id: str

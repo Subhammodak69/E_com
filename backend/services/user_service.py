@@ -2,24 +2,15 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from models import User
-import random
-from schemas import UserCreate, UserUpdate
+from schemas.user_schema import *
 from error_handling import handle_integrity_error
-from utils.cache import store_otp_in_memory, get_otp, delete_otp
 from utils.email import send_otp_email
 from typing import Optional
-import hashlib
+from utils.cache import *
 
-def generate_temp_user_id(identifier: str) -> str:
-    # Create a hash from email or email+phone to serve as temp_id
-    hash_key = hashlib.sha256(identifier.lower().encode()).hexdigest()
-    return hash_key[:16]
-
-def generate_otp() -> str:
-    return str(random.randint(100000, 999999))
 
 def send_otp(db: Session, data: UserCreate, purpose: str = "signup") -> str:
-    # For signup, user MUST NOT exist yet
+    # For signup, ensure user does NOT already exist
     if purpose == "signup":
         exists = db.query(User).filter(User.email == data.email, User.is_active == True).first()
         if exists:
@@ -27,8 +18,8 @@ def send_otp(db: Session, data: UserCreate, purpose: str = "signup") -> str:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="User already exists"
             )
-    # For login, user MUST exist already
     elif purpose == "login":
+        # For login, user MUST exist
         exists = db.query(User).filter(User.email == data.email, User.is_active == True).first()
         if not exists:
             raise HTTPException(
@@ -38,32 +29,29 @@ def send_otp(db: Session, data: UserCreate, purpose: str = "signup") -> str:
     else:
         raise HTTPException(status_code=400, detail="Invalid purpose")
 
-    identifier = data.email + (data.phone or '')
-    temp_id = generate_temp_user_id(identifier)
+    temp_id = generate_temp_user_id()
     otp = generate_otp()
-    store_otp_in_memory(temp_id, otp)
+    store_otp_in_memory(temp_id, otp, ttl_seconds=60)  # OTP valid for 1 minute
     send_otp_email(data.email, otp)
     return temp_id
 
-def create_user(db: Session, data: UserCreate, otp_input: str, temp_id: str) -> Optional[User]:
-    cached_otp = get_otp(temp_id)
-    if not cached_otp or cached_otp != otp_input:
-        return None  # Will trigger HTTP error
 
+
+def create_user(db: Session, data: UserCreate) -> Optional[User]:
     user_data = data.dict()
     user_data["is_active"] = True
     db_user = User(**user_data)
+
     db.add(db_user)
     try:
         db.commit()
         db.refresh(db_user)
-    except IntegrityError as e:
+    except IntegrityError:
         db.rollback()
-        handle_integrity_error(e)
+        handle_integrity_error()
         return None
-    delete_otp(temp_id)
-    return db_user
 
+    return db_user
 
 
 
