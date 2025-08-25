@@ -52,3 +52,15 @@ class UserRead(UserBase):
         orm_mode = True
         use_enum_values = True
         from_attributes = True
+        
+        
+class OTPVerify(BaseModel):
+    temp_id: str
+    otp: str
+    
+    
+
+class UserCreateWithOTP(UserCreate):
+    temp_id: str
+    otp_input: str
+

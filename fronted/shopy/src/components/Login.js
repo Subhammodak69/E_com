@@ -29,7 +29,7 @@ const Login = () => {
 
   return (
     <div className="container d-flex justify-content-center align-items-center ">
-      <div className="card shadow-lg p-4" style={{ maxWidth: '350px', width: '100%' }}>
+      <div className="card shadow-lg p-4" style={{ maxWidth: '400px', width: '100%' }}>
         <div className="text-center mb-4">
           <img src="/favicon.png" alt="favicon" width="60" className="mb-2" />
           <h4 className="fw-bold mb-1">Login to Shopy</h4>
@@ -87,7 +87,7 @@ const Login = () => {
           </div>
         )}
         <p>Create Account ? 
-        <Link to="/Sign Up/" style={{ marginLeft: "5px" ,textDecoration: 'none' }}>Sign Up</Link>
+        <Link to="/Signup/" style={{ marginLeft: "5px" ,textDecoration: 'none' }}>Sign Up</Link>
 
         </p>
       </div>

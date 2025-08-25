@@ -39,31 +39,31 @@ const Navbar = () => {
 
       {/* Navigation Links */}
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', gap: '2rem' }}>
-      <li>
-        <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>
-          <i className="bi bi-house me-1"></i>
-          Home
-        </Link>
-      </li>
-      <li>
-        <Link to="/cart" style={{ color: 'white', textDecoration: 'none' }}>
-          <i className="bi bi-cart me-1"></i>
-          Cart
-        </Link>
-      </li>
-      <li>
-        <Link to="/order" style={{ color: 'white', textDecoration: 'none' }}>
-          <i className="bi bi-box-seam me-1"></i>
-          Order
-        </Link>
-      </li>
-      <li>
-        <Link to="/wishlist" style={{ color: 'white', textDecoration: 'none' }}>
-          <i className="bi bi-heart me-1"></i>
-          Wishlist
-        </Link>
-      </li>
-    </ul>
+        <li>
+          <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>
+            <i className="bi bi-house me-1"></i>
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link to="/cart" style={{ color: 'white', textDecoration: 'none' }}>
+            <i className="bi bi-cart me-1"></i>
+            Cart
+          </Link>
+        </li>
+        <li>
+          <Link to="/order" style={{ color: 'white', textDecoration: 'none' }}>
+            <i className="bi bi-box-seam me-1"></i>
+            Order
+          </Link>
+        </li>
+        <li>
+          <Link to="/wishlist" style={{ color: 'white', textDecoration: 'none' }}>
+            <i className="bi bi-heart me-1"></i>
+            Wishlist
+          </Link>
+        </li>
+      </ul>
 
 
       {/* Search Bar */}
@@ -117,7 +117,8 @@ const Navbar = () => {
           fontWeight: 'bold',
           color: '#282c34',
         }}>
-          Sign Up
+          <Link to="/signup/" style={{ color: 'white', textDecoration: 'none' }}>SignUp</Link>
+
         </button>
       </div>
     </nav>

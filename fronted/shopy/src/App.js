@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Login from './components/Login';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import SignUp from './components/Signup';
 
 const Layout = () => {
   // This layout wraps Navbar, Footer, and outlet for nested routes inside main
@@ -37,6 +38,10 @@ function App() {
         {
           path: "/login/",
           element: <Login />,
+        },
+        {
+          path: "/signup/",
+          element: <SignUp />,
         },
         // Add more routes here if needed
       ],
