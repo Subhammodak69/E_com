@@ -8,9 +8,13 @@ otp_cache = {}
 def store_otp_in_memory(temp_id: str, otp: str, ttl_seconds: int = 300):
     expires_at = datetime.utcnow() + timedelta(seconds=ttl_seconds)
     otp_cache[temp_id] = (otp, expires_at)
+    print(f"Stored OTP for temp_id={temp_id} at {datetime.utcnow()}")
 
 def get_otp(temp_id: str) -> Optional[str]:
+    print(otp_cache,"otp chache")
+    
     record = otp_cache.get(temp_id)
+    print(record,"record")
     if not record:
         print(f"OTP cache miss for temp_id {temp_id} at {datetime.utcnow()}")
         return None

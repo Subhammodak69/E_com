@@ -14,7 +14,7 @@ const Login = () => {
   const handleSendOtp = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`http://localhost:8000/auth/send-otp?purpose=login`, { email });
+      const response = await axios.post(`http://localhost:8000/auth/login/send-otp?purpose=login`, { email });
       setTempId(response.data.temp_id);
       setOtpSent(true);
       setMessage(response.data.message);
@@ -38,12 +38,23 @@ const Login = () => {
   const handleVerifyOtp = async () => {
     setLoading(true);
     try {
-      await axios.post('http://localhost:8000/users/verify-otp?purpose=login', {
+      // Verify OTP first
+      await axios.post('http://localhost:8000/auth/login/verify-otp', {
         temp_id: tempId,
         otp,
       });
+
+      // Assuming backend returns token on verification or a next API call after verify
+      // Example: backend returns { access_token: '...' } after OTP verify
+      const tokenResponse = await axios.post('http://localhost:8000/auth/login-with-temp-id', {
+        temp_id: tempId,
+        flag: "is_otp_verified"  // Must match exactly
+      });
+
+      const token = tokenResponse.data.access_token;
+      localStorage.setItem('token', token);  // <== Save token here
+
       setMessage('Login successful!');
-      // Show spinner for 1 second before redirecting
       setTimeout(() => {
         setLoading(false);
         navigate('/');
@@ -53,6 +64,7 @@ const Login = () => {
       setMessage('Invalid OTP. Please try again.');
     }
   };
+
 
   const handleResendOtp = () => {
     setOtp('');
@@ -123,7 +135,7 @@ const Login = () => {
         )}
 
         <p>
-          Create Account? 
+          Create Account?
           <Link to="/signup" style={{ marginLeft: "5px", textDecoration: 'none' }}>Sign Up</Link>
         </p>
       </div>

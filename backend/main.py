@@ -20,6 +20,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+import secrets
+
+secret_key = secrets.token_urlsafe(32)
+
 
 
 

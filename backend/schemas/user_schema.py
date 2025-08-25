@@ -40,6 +40,9 @@ class OTPVerify(BaseModel):
     otp: str
     purpose: Optional[str] = None 
     
+class LoginWithTempId(BaseModel):
+    temp_id: str
+    flag: str
 
 class UserUpdate(BaseModel):
     first_name: Optional[str] = None
@@ -58,5 +61,9 @@ class UserRead(UserBase):
         orm_mode = True
         use_enum_values = True
         from_attributes = True
+        
+class LoginWithOtpRequest(BaseModel):
+    temp_id: str
+    otp: str
         
         

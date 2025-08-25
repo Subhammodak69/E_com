@@ -9,29 +9,17 @@ from typing import Optional
 from utils.cache import *
 
 
-def send_otp(db: Session, data: UserCreate, purpose: str = "signup") -> str:
-    # For signup, ensure user does NOT already exist
-    if purpose == "signup":
-        exists = db.query(User).filter(User.email == data.email, User.is_active == True).first()
-        if exists:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User already exists"
-            )
-    elif purpose == "login":
-        # For login, user MUST exist
-        exists = db.query(User).filter(User.email == data.email, User.is_active == True).first()
-        if not exists:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User does not exist"
-            )
-    else:
-        raise HTTPException(status_code=400, detail="Invalid purpose")
+def send_otp(db: Session, data: UserCreate) -> str:
+    exists = db.query(User).filter(User.email == data.email, User.is_active == True).first()
+    if exists:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User already exists"
+        )
 
     temp_id = generate_temp_user_id()
     otp = generate_otp()
-    store_otp_in_memory(temp_id, otp, ttl_seconds=60)  # OTP valid for 1 minute
+    store_otp_in_memory(temp_id, otp, ttl_seconds=300)  # OTP valid for 1 minute
     send_otp_email(data.email, otp)
     return temp_id
 

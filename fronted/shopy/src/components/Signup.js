@@ -40,7 +40,7 @@ const SignUp = () => {
   const handleSendOtp = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/users/send-otp?purpose=signup', formData);
+      const response = await axios.post('http://localhost:8000/users/send-otp', formData);
       setTempId(response.data.temp_id);
       setMessage(response.data.message);
     } catch (error) {

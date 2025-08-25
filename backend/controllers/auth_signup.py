@@ -11,7 +11,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.post("/send-otp")
 def send_otp_endpoint(user: UserCreate, purpose: str = "signup", db: Session = Depends(get_db)):
-    temp_id = send_otp(db, user, purpose)
+    temp_id = send_otp(db, user)
     return {"temp_id": temp_id, "message": "OTP sent to your email."}
 
 @router.post("/verify-otp")

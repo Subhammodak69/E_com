@@ -9,7 +9,7 @@ import time
 URL_DATABASE = credentials.DATABASE_CREDENTIALS
 
 # Engine and session setup
-engine = create_engine(URL_DATABASE)
+engine = create_engine(URL_DATABASE, pool_pre_ping=True)  # Adds connection health check
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
