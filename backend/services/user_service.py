@@ -10,26 +10,36 @@ from utils.email import send_otp_email
 from typing import Optional
 import hashlib
 
-def generate_temp_user_id(email: str, phone: str) -> str:
-    unique_string = f"{email.lower()}_{phone}"
-    temp_id = hashlib.sha256(unique_string.encode()).hexdigest()
-    # Return a shorter unique id (e.g., the first 16 characters)
-    return temp_id[:16]
+def generate_temp_user_id(identifier: str) -> str:
+    # Create a hash from email or email+phone to serve as temp_id
+    hash_key = hashlib.sha256(identifier.lower().encode()).hexdigest()
+    return hash_key[:16]
 
+def generate_otp() -> str:
+    return str(random.randint(100000, 999999))
 
-def generate_otp():
-    otp = str(random.randint(100000, 999999))
-    print(otp)
-    return otp
+def send_otp(db: Session, data: UserCreate, purpose: str = "signup") -> str:
+    # For signup, user MUST NOT exist yet
+    if purpose == "signup":
+        exists = db.query(User).filter(User.email == data.email, User.is_active == True).first()
+        if exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User already exists"
+            )
+    # For login, user MUST exist already
+    elif purpose == "login":
+        exists = db.query(User).filter(User.email == data.email, User.is_active == True).first()
+        if not exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User does not exist"
+            )
+    else:
+        raise HTTPException(status_code=400, detail="Invalid purpose")
 
-def send_otp(db: Session, data: UserCreate) -> str:
-    # Check if a user with the same email and active already exists
-    is_user = db.query(User).filter(User.email == data.email, User.is_active == True).first()
-    if is_user:
-        # Raise HTTPException to return an error response
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
-
-    temp_id = generate_temp_user_id(data.email, data.phone)
+    identifier = data.email + (data.phone or '')
+    temp_id = generate_temp_user_id(identifier)
     otp = generate_otp()
     store_otp_in_memory(temp_id, otp)
     send_otp_email(data.email, otp)
@@ -53,23 +63,6 @@ def create_user(db: Session, data: UserCreate, otp_input: str, temp_id: str) -> 
         return None
     delete_otp(temp_id)
     return db_user
-
-
-def verify_otp(db: Session, user_id: int, otp_input: str) -> User:
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return None
-
-    cached_otp = get_otp(user_id)
-    if not cached_otp or cached_otp != otp_input:
-        return None
-
-    user.is_active = True
-    db.commit()
-    db.refresh(user)
-    delete_otp(user_id)
-
-    return user
 
 
 

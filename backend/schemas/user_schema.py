@@ -23,16 +23,23 @@ class UserBase(BaseModel):
     phone: Optional[str] = None
     is_active: bool = True
 
-class UserCreate(UserBase):
+class UserCreate(BaseModel):
     first_name: str
-    middle_name: Optional[str] = None
+    middle_name: Optional[str]
     last_name: str
-    profile_photo_url: Optional[str] = None
-    gender: GenderEnum = GenderEnum.OTHERS
-    role: RoleEnum = RoleEnum.ENDUSER
     email: EmailStr
-    phone: Optional[str] = None
-    is_active: bool = True
+    phone: Optional[str]
+    gender: str
+
+
+class UserCreateWithOTP(UserCreate):
+    temp_id: str
+    otp_input: str
+
+class OTPVerify(BaseModel):
+    temp_id: str
+    otp: str
+    purpose: Optional[str] = None 
     
 
 class UserUpdate(BaseModel):
@@ -54,13 +61,3 @@ class UserRead(UserBase):
         from_attributes = True
         
         
-class OTPVerify(BaseModel):
-    temp_id: str
-    otp: str
-    
-    
-
-class UserCreateWithOTP(UserCreate):
-    temp_id: str
-    otp_input: str
-
