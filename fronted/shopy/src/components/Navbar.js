@@ -71,7 +71,6 @@ const Navbar = () => {
             ) : (
               <div style={avatarFallbackStyle}>{getUserAvatarText()}</div>
             )}
-            <span style={{ fontWeight: 'bold', color: 'white' }}>{user.first_name}</span>
           </>
         )}
       </div>
