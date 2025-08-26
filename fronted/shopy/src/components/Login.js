@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';   // ✅ Import context
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,10 +12,15 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const { loginUser } = useContext(AuthContext);   // ✅ Get loginUser from context
+
   const handleSendOtp = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`http://localhost:8000/auth/login/send-otp?purpose=login`, { email });
+      const response = await axios.post(
+        `http://localhost:8000/auth/login/send-otp?purpose=login`,
+        { email }
+      );
       setTempId(response.data.temp_id);
       setOtpSent(true);
       setMessage(response.data.message);
@@ -22,7 +28,9 @@ const Login = () => {
       let errorMsg = 'Try again';
       if (error.response?.data?.detail) {
         if (Array.isArray(error.response.data.detail)) {
-          errorMsg = error.response.data.detail.map(d => d.msg || JSON.stringify(d)).join(', ');
+          errorMsg = error.response.data.detail.map(
+            d => d.msg || JSON.stringify(d)
+          ).join(', ');
         } else if (typeof error.response.data.detail === 'string') {
           errorMsg = error.response.data.detail;
         } else {
@@ -38,21 +46,25 @@ const Login = () => {
   const handleVerifyOtp = async () => {
     setLoading(true);
     try {
-      // Verify OTP first
+      // Step 1: Verify OTP
       await axios.post('http://localhost:8000/auth/login/verify-otp', {
         temp_id: tempId,
         otp,
       });
 
-      // Assuming backend returns token on verification or a next API call after verify
-      // Example: backend returns { access_token: '...' } after OTP verify
-      const tokenResponse = await axios.post('http://localhost:8000/auth/login-with-temp-id', {
-        temp_id: tempId,
-        flag: "is_otp_verified"  // Must match exactly
-      });
+      // Step 2: Get access token
+      const tokenResponse = await axios.post(
+        'http://localhost:8000/auth/login-with-temp-id',
+        {
+          temp_id: tempId,
+          flag: "is_otp_verified"  // Must match exactly
+        }
+      );
 
       const token = tokenResponse.data.access_token;
-      localStorage.setItem('token', token);  // <== Save token here
+
+      // ✅ Step 3: Update AuthContext (saves token + fetches /me)
+      await loginUser(token);
 
       setMessage('Login successful!');
       setTimeout(() => {
@@ -60,11 +72,11 @@ const Login = () => {
         navigate('/');
       }, 1000);
     } catch (error) {
+      console.error("Verify OTP error", error);
       setLoading(false);
       setMessage('Invalid OTP. Please try again.');
     }
   };
-
 
   const handleResendOtp = () => {
     setOtp('');
@@ -109,7 +121,9 @@ const Login = () => {
                 disabled={loading}
               />
             </div>
-            <button className="btn btn-primary w-100 mb-3" onClick={handleSendOtp} disabled={loading}>Send OTP</button>
+            <button className="btn btn-primary w-100 mb-3" onClick={handleSendOtp} disabled={loading}>
+              Send OTP
+            </button>
           </>
         ) : (
           <>
@@ -125,8 +139,12 @@ const Login = () => {
                 disabled={loading}
               />
             </div>
-            <button className="btn btn-success w-100 mb-2" onClick={handleVerifyOtp} disabled={loading}>Verify OTP</button>
-            <button className="btn btn-outline-secondary w-100 mb-3" onClick={handleResendOtp} disabled={loading}>Resend OTP</button>
+            <button className="btn btn-success w-100 mb-2" onClick={handleVerifyOtp} disabled={loading}>
+              Verify OTP
+            </button>
+            <button className="btn btn-outline-secondary w-100 mb-3" onClick={handleResendOtp} disabled={loading}>
+              Resend OTP
+            </button>
           </>
         )}
 

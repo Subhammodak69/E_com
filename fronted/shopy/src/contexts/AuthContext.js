@@ -19,16 +19,15 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      console.log("DEBUG: Making API call to /users/me with token");
+      console.log("DEBUG: Making API call to /auth/me with token");
       const response = await axios.get('http://localhost:8000/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("DEBUG: API response received:", response.data);
       setUser(response.data);
     } catch (error) {
-      console.error("DEBUG: Error fetching /users/me:", error);
+      console.error("DEBUG: Error fetching /auth/me:", error);
 
-      // Log detailed error response if available
       if (error.response) {
         console.error("DEBUG: API error status:", error.response.status);
         console.error("DEBUG: API error data:", error.response.data);
@@ -40,12 +39,24 @@ export const AuthProvider = ({ children }) => {
     setLoadingUser(false);
   };
 
+  // Run once on mount
   useEffect(() => {
     fetchCurrentUser();
   }, []);
 
+  // ✅ Add helpers for login/logout
+  const loginUser = async (token) => {
+    localStorage.setItem('token', token);
+    await fetchCurrentUser();   // immediately re-fetch user
+  };
+
+  const logoutUser = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loadingUser }}>
+    <AuthContext.Provider value={{ user, setUser, loadingUser, loginUser, logoutUser, fetchCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );

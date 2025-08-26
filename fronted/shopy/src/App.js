@@ -1,8 +1,10 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ProductsProvider } from './contexts/ProductsContext';  // import ProductsProvider
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Home from './components/Home';
 import Login from './components/Login';
 import SignUp from './components/Signup';
 
@@ -16,29 +18,24 @@ const Layout = () => (
   </div>
 );
 
-const Home = () => (
-  <>
-    <h1>Welcome to Your Site</h1>
-    <p>This is the middle content area.</p>
-  </>
-);
-
 function App() {
   const router = createBrowserRouter([
     {
       path: '/',
       element: <Layout />,
       children: [
-        { path: '', element: <Home /> },           // Use empty path for index route
-        { path: 'login', element: <Login /> },     // No leading slash
-        { path: 'signup', element: <SignUp /> },   // No leading slash
+        { path: '', element: <Home /> },          // Use empty path for index route
+        { path: 'login', element: <Login /> },    // No leading slash
+        { path: 'signup', element: <SignUp /> },  // No leading slash
       ],
     },
   ]);
 
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <ProductsProvider>           {/* Wrap RouterProvider with ProductsProvider */}
+        <RouterProvider router={router} />
+      </ProductsProvider>
     </AuthProvider>
   );
 }
