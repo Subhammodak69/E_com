@@ -1,3 +1,4 @@
+// contexts/ProductsContext.js
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -11,7 +12,7 @@ export const ProductsProvider = ({ children }) => {
   const fetchProducts = async () => {
     setLoadingProducts(true);
     try {
-      const response = await axios.get('http://localhost:8000/productitems'); // Adjust URL to your backend
+      const response = await axios.get('http://127.0.0.1:8000/productitems/');
       setProducts(response.data);
       setError(null);
     } catch (err) {

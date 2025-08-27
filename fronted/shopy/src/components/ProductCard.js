@@ -1,23 +1,35 @@
+// components/ProductCard.js
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product, onAddToCart }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/productitems/${product.id}`);
+  };
+
   return (
-    <div style={cardStyle}>
+    <div style={cardStyle} onClick={handleCardClick}>
       <img src={product.photo_url} alt={product.name} style={imageStyle} />
       <h3 style={{ margin: '0.5rem 0' }}>{product.name}</h3>
       <p style={{ color: '#555', fontSize: '0.9rem' }}>{product.description}</p>
       <div style={priceStyle}>${product.price.toFixed(2)}</div>
-      <button style={buttonStyle} onClick={() => onAddToCart(product)}>
+      <button
+        style={buttonStyle}
+        onClick={e => {
+          e.stopPropagation();
+          onAddToCart(product);
+        }}
+      >
         Add to Cart
       </button>
     </div>
   );
 };
-
-// Styles
 const cardStyle = {
-        margin: 'auto',
-    width:'200px',
+  margin: 'auto',
+  width: '200px',
   border: '1px solid #ddd',
   borderRadius: '8px',
   padding: '1rem',
@@ -50,5 +62,6 @@ const buttonStyle = {
   borderRadius: '4px',
   cursor: 'pointer',
 };
+
 
 export default ProductCard;
