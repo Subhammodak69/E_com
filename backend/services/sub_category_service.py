@@ -4,19 +4,8 @@ from schemas import SubCategoryCreate, SubCategoryUpdate
 from typing import List
 from fastapi import HTTPException, status
 from sqlalchemy.exc import IntegrityError
-import re
-
-
-def handle_integrity_error(e: IntegrityError):
-    error_message = str(e.orig)
-    match = re.search(r'Key \((.*?)\)=\((.*?)\) already exists', error_message)
-    if match:
-        field_name = match.group(1)
-        field_value = match.group(2)
-        readable_field = field_name.replace('_', ' ').capitalize()
-        detail_msg = f"{readable_field} '{field_value}' already exists"
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=detail_msg)
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Database integrity error")
+from error_handling import handle_integrity_error
+from typing import Any, Dict
 
 
 def create_subcategory(db: Session, subcategory: SubCategoryCreate) -> SubCategory:
@@ -64,3 +53,31 @@ def delete_subcategory(db: Session, subcategory_id: int) -> None:
     except IntegrityError as e:
         db.rollback()
         handle_integrity_error(e)
+
+
+def patch_subcategory(
+    db: Session,
+    subcategory_id: int,
+    sub_patch: SubCategoryUpdate,  # Use same update schema but partial fields only
+) -> SubCategory:
+    db_sub = get_subcategory(db, subcategory_id)  # raises 404 if not found
+
+    update_data: Dict[str, Any] = sub_patch.dict(exclude_unset=True)
+    if not update_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No fields provided for patch update"
+        )
+
+    for field, value in update_data.items():
+        if hasattr(db_sub, field):
+            setattr(db_sub, field, value)
+
+    try:
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        handle_integrity_error(e)
+
+    db.refresh(db_sub)
+    return db_sub

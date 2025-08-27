@@ -27,10 +27,19 @@ secret_key = secrets.token_urlsafe(32)
 
 
 
-# Dynamically import all router objects from controllers package
+import pkgutil
+import importlib
 import controllers
 
-for _, module_name, _ in pkgutil.iter_modules(controllers.__path__):
-    module = importlib.import_module(f"controllers.{module_name}")
-    if hasattr(module, "router"):
-        app.include_router(module.router)
+def include_subpackage_routers(package):
+    for _, module_name, is_pkg in pkgutil.iter_modules(package.__path__):
+        full_module_name = f"{package.__name__}.{module_name}"
+        module = importlib.import_module(full_module_name)
+        if hasattr(module, "router"):
+            app.include_router(module.router)
+        if is_pkg:
+            # Recursively include routers in subpackages
+            include_subpackage_routers(module)
+
+# Call the function
+include_subpackage_routers(controllers)

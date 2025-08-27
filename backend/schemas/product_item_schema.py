@@ -56,8 +56,8 @@ class ProductItem(ProductItemInDBBase):
 class ProductItemPatch(BaseModel):
     product_id: Optional[int]
     availibility: Optional[int]
-    size: Optional[Size]
-    color: Optional[Color]
-    price: Optional[int]
-    photo_url: Optional[str]
-    is_active: Optional[bool]
+    size: Optional[Size] = None
+    color: Optional[Color] = None
+    price: Optional[int] = None
+    photo_url: Optional[str] = None
+    is_active: Optional[bool] = None

@@ -37,7 +37,7 @@ def update_subcategory(subcategory_id: int, subcategory: SubCategoryUpdate, db: 
 
 @router.patch("/{subcategory_id}", response_model=SubCategoryRead)
 def patch_subcategory(subcategory_id: int, subcategory: SubCategoryUpdate, db: Session = Depends(get_db)):
-    db_sub = sub_category_service.update_subcategory(db, subcategory_id, subcategory)
+    db_sub = sub_category_service.patch_subcategory(db, subcategory_id, subcategory)
     if not db_sub:
         raise HTTPException(status_code=404, detail="SubCategory not found")
     return db_sub

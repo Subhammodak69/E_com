@@ -9,6 +9,8 @@ from typing import Optional
 from utils.cache import *
 
 
+    
+
 def send_otp(db: Session, data: UserCreate) -> str:
     exists = db.query(User).filter(User.email == data.email, User.is_active == True).first()
     if exists:
